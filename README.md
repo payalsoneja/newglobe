@@ -1,5 +1,5 @@
 # NewGlobe | MIDP Capstone
-## Data Anlaysis and Visualization of the existing data
+## Data Anlaysis and Visualization
 
 **Authors:**<br/>
 Cuong Pham Vu <br/>
