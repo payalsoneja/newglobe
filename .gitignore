@@ -1,0 +1,18 @@
+.Rproj.user
+
+#Ignore csv files
+data/*.csv
+#Ignore zip files
+data/*.zip
+#Ignore excel files
+data/*.xlsx
+#Ignore RData files
+*.RData
+
+#Ignore Rhistory files
+.Rhistory
+
+#Ignore R files
+data/*.R
+
+!data/.gitkeep
