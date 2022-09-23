@@ -14,5 +14,3 @@ data/*.xlsx
 
 #Ignore R files
 data/*.R
-
-!data/.gitkeep
