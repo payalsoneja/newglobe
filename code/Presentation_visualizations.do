@@ -17,7 +17,7 @@ use "/Users/Hailey/Desktop/Georgetown/Year#2/Capstone/Anonymized file - TEACH da
 ******************************************************************************
 *set graphics preferences
 set graphics on
-set scheme tab3
+set scheme cblind1
 
 ******************************************************************************
 *Difference in difference visualizations (2 per category)
@@ -64,12 +64,15 @@ gr combine cat3_1.gph cat3_2.gph, title("Difference-in-Difference Results for So
 *1. Critical thinking
 
 //GENDER: baseline vs. endline section rating by gender and treatment
-graph bar (mean) section7_average, over(treatment) over(female, relabel(1 "Male"  2 "Female")) over(endline, relabel(1 "Baseline" 2 "Endline")) blabel(bar, size(small) format(%3.2f)) ytitle("Average Rating", size(medsmall)) yscale(titlegap(*10)) ylabel(1 "Low" 2 "Medium" 3 "High", labsize(small)) title("Teacher Facilitates Student Critical Thinking", size(medsmall))
+graph bar (mean) section7_average, over(treatment) over(female, relabel(1 "Male"  2 "Female")) over(endline, relabel(1 "Baseline" 2 "Endline")) blabel(bar, size(small) format(%3.2f)) ytitle("Average Rating", size(medsmall)) yscale(titlegap(*10)) ylabel(1 "Low" 2 "Medium" 3 "High", labsize(small)) title("Differences in 'Teacher Facilitates Student Critical Thinking' by Gender", size(medsmall) span)
 
 //GRADE: baseline vs. endline section rating by grade
 gen section7_base = section7_average if endline == 0
 gen section7_end = section7_average if endline == 1
-graph dot section7_base section7_end, over(grade, label(labsize(vsmall))) over(treatment, label(labsize(small))) title("Differences in Teacher Enables Student Critical Thinking", size(medlarge) span) subtitle("Teachers are rated on their facilitation of 'Critical Thinking' on a 3-point scale of low to high.", size(vsmall) span) legend(label(1 "Baseline") label(2 "Endline")) ylabel(0 1 2 3)
+preserve
+drop if grade == 0
+graph dot section7_base section7_end, over(grade, label(labsize(vsmall))) over(treatment, label(labsize(small))) title("Differences in Teacher Enables Student Critical Thinking", size(medlarge) span) subtitle("Teachers are rated on their facilitation of 'Critical Thinking' on a 3-point scale of low to high.", size(vsmall) span) legend(label(1 "Baseline") label(2 "Endline")) ylabel(1 2 3) exclude0
+restore
 
 //SUBJECT: 
 graph bar (mean) section7_average, over(treatment, label(labsize(vsmall))) bargap(50) over(endline, relabel(1 "Baseline" 2 "Endline")) blabel(bar, size(vsmall) format(%3.2f)) by(subject_type, title("Teacher Facilitates Student Critical Thinking", size(medium))) ytitle(Time Spent Learning Rating) ylabel(1 "Low" 2 "Medium" 3 "High", labsize(vsmall)) asyvars
@@ -79,12 +82,15 @@ graph bar (mean) section7_average, over(treatment, label(labsize(vsmall))) barga
 	
 *2. Social Collaborative Skills
 //GENDER: baseline vs. endline section rating by gender and treatment
-graph bar (mean) section10_average, over(treatment) over(female, relabel(1 "Male"  2 "Female")) over(endline, relabel(1 "Baseline" 2 "Endline")) blabel(bar, size(small) format(%3.2f)) ytitle("Average Rating", size(medsmall)) yscale(titlegap(*10)) ylabel(1 "Low" 2 "Medium" 3 "High", labsize(small)) title("Teacher Promotes Student Social and Collaborative Skills", size(medsmall))
+graph bar (mean) section10_average, over(treatment) over(female, relabel(1 "Male"  2 "Female")) over(endline, relabel(1 "Baseline" 2 "Endline")) blabel(bar, size(small) format(%3.2f)) ytitle("Average Rating", size(medsmall)) yscale(titlegap(*10)) ylabel(1 "Low" 2 "Medium" 3 "High", labsize(small)) title("Differences in 'Teacher Promotes Student Social and Collaborative Skills' by Gender", size(medsmall) span)
 
 //GRADE: baseline vs. endline section rating by grade
 gen section10_base = section10_average if endline == 0
 gen section10_end = section10_average if endline == 1
-graph dot section10_base section10_end, over(grade, label(labsize(vsmall))) over(treatment, label(labsize(small))) title("Teacher Promotes Student Social and Collaborative Skills", size(medlarge) span) subtitle("Teachers are rated on their facilitation of 'Social/Collaborative Skills' on a 3-point scale of low to high.", size(vsmall) span) legend(label(1 "Baseline") label(2 "Endline")) ylabel(0 1 2 3)
+preserve
+drop if grade == 0
+graph dot section10_base section10_end, over(grade, label(labsize(vsmall))) over(treatment, label(labsize(small))) title("Differences in 'Teacher Promotes Student Social and Collaborative Skills' by Grade", size(medlarge) span) subtitle("Teachers are rated on their facilitation of 'Social/Collaborative Skills' on a 3-point scale of low to high.", size(vsmall) span) legend(label(1 "Baseline") label(2 "Endline")) ylabel(1 2 3) exclude0
+restore
 
 //SUBJECT: 
 graph bar (mean) section7_average, over(treatment, label(labsize(vsmall))) bargap(50) over(endline, relabel(1 "Baseline" 2 "Endline")) blabel(bar, size(vsmall) format(%3.2f)) by(subject_type, title("Teacher Promotes Student Social and Collaborative Skills", size(medium))) ytitle(Time Spent Learning Rating) ylabel(1 "Low" 2 "Medium" 3 "High", labsize(vsmall)) asyvars
