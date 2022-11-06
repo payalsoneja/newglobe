@@ -50,8 +50,11 @@ cd 				"$user/$main"
 				* 5. Plot the distributions of 10 sections, 3 core areas and the overall TEACH
 				* 6. Generate diff-in-diff plots for 10 sections, 3 core areas and overall TEACH	*
 				* 7. Combine graphs (wherever necessary) and explort all graphs						*
-				* 8. 
-				* 9. 
+				* 8. Normalizes big four moves scores within districts    							*
+				* 9. Plots the distribution of two big four moves by district.						*
+				* 10. Plots the mean scores of each big four variable by gender and grades			*
+				* 11. Plots the mean scores of each big four variable by treatment (Diff-in-Diff)	*
+				
 ********************************************************************************
 				
 use "$clean/teach_newglobe.dta", clear

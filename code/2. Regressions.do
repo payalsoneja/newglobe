@@ -1,4 +1,5 @@
 /**********************************************************************************
+Georgetown Capstone Project
  Client: 			NewGlobe
  Project: 			Analysis of Existing Data
  Purpose: 			This .do cleans generates regression_table.xlsx
