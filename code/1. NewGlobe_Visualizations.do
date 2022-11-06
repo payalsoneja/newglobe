@@ -170,7 +170,7 @@ preserve
 	local x: label `z' `l'
 		graph bar (count) if sections == `l', over(section_round_average) over(endline, gap(*0.7) relabel(1 "Baseline" 2 "Endline")) over(sections, gap(*0.6) ///
 		label(labsize(small))) percent stack asyvars bar(1, color(cranberry)) bar(2, color(dkorange)) bar(3, color(dkgreen)) legend(size(small) rows(1)) ///
-		blabel(bar, position(inside) format(%3.2f) size(vsmall) color) ytitle(Percent (%), size(small)) title("`x'",  size(Medium)) outergap(*9) saving("$tempgraphs/section_`x'", replace)
+		blabel(bar, position(inside) format(%3.2f) size(vsmall)) ytitle(Percent (%), size(small)) title("`x'",  size(Medium)) outergap(*9) saving("$tempgraphs/section_`x'", replace)
 	}
 restore
 
