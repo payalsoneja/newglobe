@@ -128,28 +128,20 @@ foreach l of local levels {
 	graph bar (count) if sections == `l', over(section_round_average) over(endline, gap(*0.7) relabel(1 "Baseline" 2 "Endline")) over(sections, gap(*0.6) label(labsize(small))) ///
 	percent stack asyvars /// 
 	bar(1, color(cranberry)) bar(2, color(dkorange)) bar(3, color(dkgreen)) legend(size(small) rows(1)) ///
-	blabel(bar, position(inside) format(%9.1f) size(small)) ytitle(Percent (%)) title("`z'",  size(Medium)) outergap(*9)saving("$output/`l'", replace)
-}
-	
-graph combine "$output/section2_round_average.gph" "$output/section3_round_average.gph", ///
-title("Distribution of Average Scores by Baseline and Endline") subtitle("Classroom Culture")
-graph export "$output/distribution_class_culture.png", replace
-
-*Instruction
-foreach var of varlist section4_round_average section5_round_average section6_round_average section7_round_average {
-	local z: variable label `var'
-	graph bar , over(`var') blabel(total, format(%9.1f)) ytitle(Percent (%))  title("`z'",  size(Medium)) saving("$output/`var'", replace) scheme(tab3) // use a foreach loop for all practices
-}
-	graph combine "$output/section4_round_average.gph" "$output/section5_round_average.gph" "$output/section6_round_average.gph" "$output/section7_round_average.gph", title("Distribution of Scores - Instruction") scheme(tab3)
-	graph export "$output/distribution_round_scores_instruction.png", replace
-
-// 15% of the teachers were rated as "Low" for section 5 practice
-
-*Socioemotional skills
-foreach var of varlist section8_round_average section9_round_average section10_round_average {
-	local z: variable label `var'
-	graph bar, over(`var') blabel(total, format(%9.1f)) ytitle(Percent (%)) title("`z'",  size(Medium)) saving("$output/`var'") scheme(cblind1)
+	blabel(bar, position(inside) format(%9.1f) size(small)) ytitle(Percent (%)) title("`z'",  size(Medium)) outergap(*9)saving("$output/section`l'", replace)
 }
 
-graph combine "$output/section8_round_average.gph" "$output/section9_round_average.gph" "$output/section10_round_average.gph", title("Distribution of Scores - Socioemotional Skills") scheme(cblind1)
-graph export "$output/distribution_round_scores_socioemotional.png", replace
+	*combine graphs for classroom culture
+	graph combine "$output/section2.gph" "$output/section3_round_average.gph", ///
+	title("Distribution of Average Scores by Baseline and Endline") subtitle("Classroom Culture")
+	graph export "$output/distribution_sections_class_culture.png", replace
+
+	*combine graphs for instruction
+	graph combine "$output/section4.gph" "$output/section5.gph" "$output/section6.gph" "$output/section7.gph", ///
+	title("Distribution of Scores by Baseline and Endline") subtitle("Classroom Culture")
+	graph export "$output/distribution_sections_instruction.png", replace
+
+	*combine graphs for socioemotional skills
+	graph combine "$output/section8.gph" "$output/section9_round_average.gph" "$output/section10_round_average.gph", title("Distribution of Scores by Baseline and Endline") subtitle("Classroom Culture")
+	graph export "$output/distribution_round_scores_socioemotional.png", replace
+restore
