@@ -5,7 +5,7 @@
 					For usage of client presentation on November 10th, 2022.
  Author: 			Payal Soneja, Hailey Wellenstein, Cuong Pham Vu
  Date:  			10/25/2022
- Updated: 			11/05/2022
+ Updated: 			11/06/2022
 **********************************************************************************/
 
 
@@ -79,8 +79,8 @@ gl raw 		"$user/raw_data"
 gl clean 	"$user/clean_data"
 gl dofiles 	"$user/$main/do_files"	
 gl output 	"$user/output"
-		gl regressions "$output/regressions"
-		gl tempgraphs "$output/tempgraphs"
+gl regressions "$output/regressions"
+gl tempgraphs "$output/tempgraphs"
 cd 			"$user/$main"
 
 **************************************************
