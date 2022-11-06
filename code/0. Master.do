@@ -27,7 +27,6 @@ ssc install schemepack, replace
 set scheme tab2
 
 ssc install estout, replace
-ssc install asdoc, replace
 ssc install xml_tab, replace
 
 **************************************************
@@ -98,4 +97,3 @@ do "$dofiles/1. NewGlobe_Visualizations.do"
 do "$dofiles/2. Regressions.do"
 	// INPUTS: $clean/teach_clean.dta
 	// OUTPUTS: $regressions/regression_table.xlsx
-
