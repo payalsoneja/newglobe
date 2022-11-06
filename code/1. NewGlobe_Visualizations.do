@@ -271,6 +271,7 @@ foreach j in `bfour'{
 levelsof lgea_id  // lega_id is district
 local district `r(levels)'
 
+* Within each district, calculate the z-score of each big four variable
 foreach i in `district' {
 	foreach j in `bfour' {
 		sum `j' if lgea_id == `i'
@@ -278,13 +279,13 @@ foreach i in `district' {
 	}
 }
 
-*label the "big four moves" variables
+*label the normalized "big four moves" variables
 label var q_13_z "Motivating students z-score"
 label var q_14_z "Using the lesson plan z-score"
 label var q_15_z "Checking performance z-score"
 label var q_16_z "Responding z-score"
 
-*plot the distribution of two big four moves. 
+* Plot the distribution of two big four moves by district.
 global bfour q_13 q_14  // add big four moves variables here
 levelsof lgea_id
 local district `r(levels)'
@@ -300,6 +301,8 @@ graph export "$output/bigfour/lesson_plan_distribution_district.png", replace
 gr combine "$output/bigfour/q_13_109" "$output/bigfour/q_13_motivation_pupils_190" "$output/bigfour/q_13_motivation_pupils_271" "$output/bigfour/q_13_motivation_pupils_352" "$output/bigfour/q_13_motivation_pupils_433" "$output/bigfour/q_13_motivation_pupils_514"  "$output/bigfour/q_13_motivation_pupils_595" "$output/bigfour/q_13_motivation_pupils_676", title("Distribution of Motivation scores by district", size(medsmall)) 
 graph export "$output/motivation_distribution_district.png", replace
 
+
+* Box plot to see the distribution around the mean for each big four variable
 levelsof endline, local(endline)
 local z: value label endline
 foreach l of local endline {
@@ -311,6 +314,8 @@ gr combine "$output/bigfour/bigfour_mean_b" "$output/bigfour/bigfour_mean_e", ti
 graph export "$output/bigfour_mean.png", replace
 
 **
+
+* Bar graph showing the mean scores of each big four variable by gender
 levelsof endline, local(endline)
 local z: value label endline
 foreach l of local endline {
@@ -322,8 +327,10 @@ gr combine "$output/bigfour/bigfour_gender_Baseline" "$output/bigfour/bigfour_ge
 graph export "$output/bigfour_gender.png", replace
 
 **
+
+* Box plot showing the distribution of each big four variable by grade
 preserve
-	drop if grade == 0 // drop the nursery grade and focus on grades 1-5
+	drop if grade == 0 // drop the nursery grade and focus on grades 1-5, there is only one observation in the nursery grade
 	local bfour q_13 q_14 q_15 q_16 // q_13-q_16 practices are the big four moves
 	foreach i in `bfour' {
 		local z: variable label `i'
@@ -340,7 +347,7 @@ restore
 gr combine "$output/bigfour/q_13" "$output/bigfour/q_14" "$output/bigfour/q_15" "$output/bigfour/q_16", title("Mean Scores of Big Four Moves by Grade", size(medsmall))
 graph export "$output/bigfour_grade.png", replace
 
-** Big Four Moves by Treatment level
+** Big Four Moves by Treatment level - Difference-in-difference graph
 local bfour q_13 q_14 q_15 q_16 // q_13-q_16 practices are the big four moves
 foreach i in `bfour' {
 	local z: variable label `i'_z
