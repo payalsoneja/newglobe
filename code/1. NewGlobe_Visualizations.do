@@ -3,7 +3,7 @@ Georgetown Capstone Project
  Client: 			NewGlobe
  Project: 			Analysis of the Existing Data 
  Purpose: 			This .do cleans the exisiting data produced by NewGlobe's adapted TEACH teacher observation tool and plots the descriptive statistics.
-					For usage of client presentation on November 10th, 2022.
+				For usage of client presentation on November 10th, 2022.
  Author: 			Payal Soneja, Hailey Wellenstein, Cuong Pham Vu
  Date:  			10/25/2022
  Updated: 			11/06/2022
