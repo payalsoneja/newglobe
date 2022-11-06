@@ -138,7 +138,7 @@ preserve
 	graph bar (count), over(area_average) over(endline, gap(*0.6) relabel(1 "Baseline" 2 "Endline")) over(areas, descending gap(*0.4) label(labsize(small))) ///
 	percent stack asyvars ///
 	bar(1, color(cranberry)) bar(2, color(dkorange)) bar(3, color(dkgreen)) legend(size(small) rows(1)) ///
-	blabel(bar,  position(inside) format(%3.2f) size(vsmall) ytitle(Percent (%)) ///
+	blabel(bar,  position(inside) format(%3.2f) size(vsmall)) ytitle(Percent (%)) ///
 	title("Distribution of Average Scores of the Overall and Three Core Areas", size(Medium)) subtitle("By Baseline and Endline", size(small)) outergap(*1) 	
 	graph export "$output/distribution_overall_areas.png", replace
 	
