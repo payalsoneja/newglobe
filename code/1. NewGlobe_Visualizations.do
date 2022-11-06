@@ -1,7 +1,7 @@
 /**********************************************************************************
 Georgetown Capstone Project
  Client: 			NewGlobe
- Project: 			Analysis of the Existing Data
+ Project: 			Analysis of the Existing Data 
  Purpose: 			This .do cleans the exisiting data produced by NewGlobe's adapted TEACH teacher observation tool and plots the descriptive statistics.
 					For usage of client presentation on November 10th, 2022.
  Author: 			Payal Soneja, Hailey Wellenstein, Cuong Pham Vu
@@ -13,9 +13,10 @@ Georgetown Capstone Project
 clear all
 set more off
 
-*install color schemes
+/*install color schemes
 ssc install schemepack, replace
 set scheme tab2   // change to newglobe's theme
+*/
 
 **************************************************
 ****** Global and locals you need to modify ******
@@ -29,12 +30,13 @@ else if c(os)=="Windows" {
 }
 
 *Project folder globals
-gl raw 		"$user/raw_data"
-gl clean 	"$user/clean_data"
-gl dofiles 	"$user/$main/do_files"	
-gl output 	"$user/output"		
-cd 			"$user/$main"
-
+gl raw 			"$user/raw_data"
+gl clean 		"$user/clean_data"
+gl dofiles 		"$user/$main/do_files"	
+gl output 		"$user/output"	
+gl regressions 	"$output/regressions"
+gl tempgraphs 	"$output/tempgraphs"	
+cd 				"$user/$main"
 
 ********************************************************************************
 
@@ -47,7 +49,9 @@ cd 			"$user/$main"
 				* 4. Reshapes data for visualizations
 				* 5. Plot the distributions of 10 sections, 3 core areas and the overall TEACH
 				* 6. Generate diff-in-diff plots for 10 sections, 3 core areas and overall TEACH	*
-				* 7. Combine graphs (wherever necessary) and explort all graphs						*											
+				* 7. Combine graphs (wherever necessary) and explort all graphs						*
+				* 8. 
+				* 9. 
 ********************************************************************************
 				
 use "$clean/teach_newglobe.dta", clear
@@ -56,7 +60,7 @@ use "$clean/teach_newglobe.dta", clear
 *Cleaning for visualizations
 *******************************
 
-*labeling all sections 
+*label all sections 
 label var section1_round_average "Time on Learning"
 label var section2_round_average "Support Learning Environment" 
 label var section3_round_average "Positive Behavioral Expectation" 
@@ -79,14 +83,21 @@ label var section8_average "Autonomy"
 label var section9_average "Perseverance" 
 label var section10_average "Social & Collaborative Skills"
 
-**generate a unique id
+*generate a unique id
 egen id = group(teacher_id endline)
+
+*add label values to endline and female variables for visualizations
+label def endline 0 "Baseline" 1 "Endline"
+label val endline endline
+
+label def female 0 "Male" 1 "Female"
+label val female female
 
 ***************************
 *Generating means
 ***************************
 
-**Generate means of the 3 clusters/areas: 
+**generate means of the 3 clusters/areas: 
 *Classroom Culture Area
 egen area1 = rmean(section2_average section3_average) //change sections here
 *Instruction Area
@@ -129,6 +140,7 @@ preserve
 	graph export "$output/distribution_overall_areas.png", replace
 	
 **a dummy code to see the distribution by treatment and time periods
+
 	/*graph bar (count) if treatment == 1, over(area_average) over(endline, gap(*0.7) relabel(1 "Baseline" 2 "Endline")) ///
 	over(areas, descending gap(*0.6) label(labsize(small))) ///
 	percent stack asyvars ///
@@ -149,42 +161,42 @@ preserve
 	6 "Feedback" 7 "Critical Thinking" 8 "Autonomy" 9 "Perseverance" 10 "Social & Collaborative Skills" 
 	label val sections sections
 
-levelsof sections, local(levels) 
-foreach l of local levels {
-	*local z: variable label `l'
-	graph bar (count) if sections == `l', over(section_round_average) over(endline, gap(*0.7) relabel(1 "Baseline" 2 "Endline")) over(sections, gap(*0.6) label(labsize(small))) ///
-	percent stack asyvars /// 
-	bar(1, color(cranberry)) bar(2, color(dkorange)) bar(3, color(dkgreen)) legend(size(small) rows(1)) ///
-	blabel(bar, position(inside) format(%3.2f) size(small)) ytitle(Percent (%), size(small)) title("`z'",  size(Medium)) outergap(*9) saving("$output/section`l'", replace)
-}
+	levelsof sections, local(sections) 
+	local z: value label sections
+	foreach l of local sections {
+	local x: label `z' `l'
+		graph bar (count) if sections == `l', over(section_round_average) over(endline, gap(*0.7) relabel(1 "Baseline" 2 "Endline")) over(sections, gap(*0.6) ///
+		label(labsize(small))) percent stack asyvars bar(1, color(cranberry)) bar(2, color(dkorange)) bar(3, color(dkgreen)) legend(size(small) rows(1)) ///
+		blabel(bar, position(inside) format(%3.2f) size(vsmall) color) ytitle(Percent (%), size(small)) title("`x'",  size(Medium)) outergap(*9) saving("$tempgraphs/section_`x'", replace)
+	}
 restore
 
 *combine section graphs and export
 **Time on Learning
-graph combine "$output/section1.gph", ///
+graph combine "$tempgraphs/section_Time on Learning.gph", ///
 title("Distribution of Average Scores of Time on Learning" , size(Medium)) subtitle("By Baseline and Endline", size(small))
 graph export "$output/distribution_time_on_learning.png", replace
 
 **Classroom Culture
-graph combine "$output/section2.gph" "$output/section3.gph", ///
+graph combine "$tempgraphs/section_Supportive Learning Environment.gph" "$tempgraphs/section_Positive Behavioral Expectation.gph", ///
 title("Distribution of Average Scores of practices under Classroom Culture", size(Medium)) subtitle("By Baseline and Endline", size(small))
 graph export "$output/distribution_classculture.png", replace
 
 **Instruction
-graph combine "$output/section4.gph" "$output/section5.gph" "$output/section6.gph" "$output/section7.gph", ///
+graph combine "$tempgraphs/section_Lesson Facilitation.gph" "$tempgraphs/section_Checks for Understanding.gph" "$tempgraphs/section_Feedback.gph" "$tempgraphs/section_Critical Thinking.gph", ///
 title("Distribution of Average Scores of practices under Instruction", size(Medium)) subtitle("By Baseline and Endline", size(small))
 graph export "$output/distribution_instruction.png", replace
 
 **Socioemotional Skills
-graph combine "$output/section8.gph" "$output/section9.gph" "$output/section10.gph", ///
+graph combine "$tempgraphs/section_Autonomy.gph" "$tempgraphs/section_Perseverance.gph" "$tempgraphs/section_Social & Collaborative Skills.gph", ///
 title("Distribution of Average Scores of practices under Socioemotional Skills", size(Medium)) subtitle("By Baseline and Endline", size(small))
 graph export "$output/distribution_socioemotional.png", replace
 	
-******************************************************************************
+******************************************************************************************
 *Difference-in-differences visualizations of the average scores (using non-rounded scores)
-******************************************************************************
+*******************************************************************************************
 
-*geenrate an interaction variable (diff-in-diff estimate) for regression
+*genrate an interaction variable (diff-in-diff estimate) for regression
 gen treatXend = treatment*endline
 label var treatXend "Treatment*Endline"
 
@@ -194,12 +206,12 @@ label var treatXend "Treatment*Endline"
 global outcomes area1 area2 area3 area4
 global controls treatment endline treatXend
 
-*run regressions
-foreach var in $outcomes {
+	**run regressions
+	foreach var in $outcomes {
 	local m=1
 	reg `var' $controls
 	local coef = round(_b[treatXend], .001) 
-	
+		
 	local z: variable label `var'
 	graph bar (mean) `var', over(treatment) bargap(30)  over(endline, relabel(1 "Baseline" 2 "Endline")) ///
 	bar(1, color(maroon)) bar(2, color(navy)) legend(size(small) rows(1)) ///
@@ -212,12 +224,12 @@ foreach var in $outcomes {
 
 *2. Difference-in-differences of the average scores of the 10 behaviors/practices
 
-**set globals for the basic regression
+*set globals for the basic regression
 forvalues n = 1/10 {
 	global outcomes section`n'_average
 	global controls treatment endline treatXend
 
-	*run regressions
+	**run regressions
 	foreach var in $outcomes {
 	local m=1
 	reg `var' $controls
@@ -225,35 +237,35 @@ forvalues n = 1/10 {
 
 	local z: variable label `var'
 	graph bar (mean) `var', over(treatment) bargap(30) over(endline, relabel(1 "Baseline" 2 "Endline")) ///
-	bar(1, color(maroon)) bar(2, color(navy)) legend(size(medium) rows(1)) ///
+	bar(1, color(maroon)) bar(2, color(navy)) legend(size(small) rows(1)) ///
 	blabel(bar, format(%3.2f) size(small)) ytitle("Average Teacher Rating", size(medium)) ///
 	yscale(titlegap(*10)) ylabel(1 "Low" 2 "Medium" 3 "High", labsize(small)) title("`z'", size(medsmall)) asyvars ///
-	caption("Improvements of score in the treatment group compared to" "the control group suggest a treatment effect of `coef'", size(small) pos(6)) outergap(*3) saving("$output/section`n'_average", replace) 
+	caption("Improvements of score in the treatment group compared to" "the control group suggest a treatment effect of `coef'", size(small) pos(6)) outergap(*3) saving("$tempgraphs/section`n'_average", replace) 
 }
 }
 
 *combine section graphs and export
 **Time on Learning
-graph combine "$output/section1_average.gph", title("Difference-in-Differences for practices under Time on Learning", size(medium)) 
+graph combine "$tempgraphs/section1_average.gph", title("Difference-in-Differences for practices under Time on Learning", size(medium)) 
 graph export "$output/diff_in_diff_time_on_learning.png", replace
 
 **Classroom Culture
-graph combine "$output/section2_average.gph" "$output/section3_average.gph", title("Difference-in-Differences for practices under Classroom Culture", size(medium)) 
+graph combine "$tempgraphs/section2_average.gph" "$tempgraphs/section3_average.gph", title("Difference-in-Differences for practices under Classroom Culture", size(medium)) 
 graph export "$output/diff_in_diff_classculture.png", replace
 
 **Instruction
-graph combine "$output/section4_average.gph" "$output/section5_average.gph" "$output/section6_average.gph" "$output/section7_average.gph", title("Difference-in-Differences for practices under Instruction", size(medium)) 
+graph combine "$tempgraphs/section4_average.gph" "$tempgraphs/section5_average.gph" "$tempgraphs/section6_average.gph" "$tempgraphs/section7_average.gph", title("Difference-in-Differences for practices under Instruction", size(medium)) 
 graph export "$output/diff_in_diff_instruction.png", replace
 
 **Socioemotional Skills
-graph combine "$output/section8_average.gph" "$output/section9_average.gph" "$output/section10_average.gph", title("Difference-in-Differences for practices under Socioemotional Skills", size(medium)) 
+graph combine "$tempgraphs/section8_average.gph" "$tempgraphs/section9_average.gph" "$tempgraphs/section10_average.gph", title("Difference-in-Differences for practices under Socioemotional Skills", size(medium)) 
 graph export "$output/diff_in_diff_socioemotional.png", replace
 	
 *****************************************************************
 *Big Four Moves
 *****************************************************************
 
-*renaming "big four skills" variables
+*rename "big four skills" variables
 ren q_13_motivation_pupils q_13
 ren q_14_accurate_lessonplan q_14
 ren q_15_checking_pupil_performance q_15
@@ -261,13 +273,12 @@ ren q_16_respond_pupil_performances q_16
 
 label var q_15 "How well is the teacher checking on pupils"
 
-**Normalize big four moves scores within districts
+*normalize big four moves scores within districts
 local bfour q_13 q_14 q_15 q_16 // q_13-q_16 practices are the big four moves
 
 foreach j in `bfour'{
 	gen `j'_z = 0
 }
-
 levelsof lgea_id  // lega_id is district
 local district `r(levels)'
 
@@ -285,77 +296,77 @@ label var q_14_z "Using the lesson plan z-score"
 label var q_15_z "Checking performance z-score"
 label var q_16_z "Responding z-score"
 
-* Plot the distribution of two big four moves by district.
+*plot the distribution of two big four moves by district.
 global bfour q_13 q_14  // add big four moves variables here
 levelsof lgea_id
 local district `r(levels)'
 	foreach i in `district' {
 	foreach var in $bfour {
-	kdensity `var' if lgea_id == `i', saving($output/bigfour/`var'_`i', replace) xscale(off) title("District `i'", size(small))
+	kdensity `var' if lgea_id == `i', saving("$tempgraphs/`var'_`i'", replace) xscale(off) title("District `i'", size(small))
 	}
 	}
 
-gr combine "$output/bigfour/q_14_109" "$output/bigfour/q_14_190" "$output/bigfour/q_14_271" "$output/bigfour/q_14_352" "$output/bigfour/q_433" "$output/bigfour/q_14_514"  "$output/bigfour/q_14_595" "$output/bigfour/q_14_676", title("Distribution of Lesson Plan scores by district", size(medsmall))
-graph export "$output/bigfour/lesson_plan_distribution_district.png", replace
+**combine section graphs and export
+**Distribution of Lesson Plan scores by district
+gr combine "$tempgraphs/q_14_109.gph" "$tempgraphs/q_14_190.gph" "$tempgraphs/q_14_271.gph" "$tempgraphs/q_14_352.gph" "$tempgraphs/q_14_433.gph" "$tempgraphs/q_14_514.gph"  "$tempgraphs/q_14_595.gph" "$tempgraphs/q_14_676.gph", title("Distribution of Lesson Plan scores by district", size(medsmall))
+graph export "$output/lesson_plan_distribution_district.png", replace
 
-gr combine "$output/bigfour/q_13_109" "$output/bigfour/q_13_motivation_pupils_190" "$output/bigfour/q_13_motivation_pupils_271" "$output/bigfour/q_13_motivation_pupils_352" "$output/bigfour/q_13_motivation_pupils_433" "$output/bigfour/q_13_motivation_pupils_514"  "$output/bigfour/q_13_motivation_pupils_595" "$output/bigfour/q_13_motivation_pupils_676", title("Distribution of Motivation scores by district", size(medsmall)) 
+*Distribution of Motivation scores by district
+gr combine "$tempgraphs/q_13_109.gph" "$tempgraphs/q_13_190.gph" "$tempgraphs/q_13_271.gph" "$tempgraphs/q_13_352.gph" "$tempgraphs/q_13_433.gph" "$tempgraphs/q_13_514.gph"  "$tempgraphs/q_13_595.gph" "$tempgraphs/q_13_676.gph", title("Distribution of Motivation scores by district", size(medsmall)) 
 graph export "$output/motivation_distribution_district.png", replace
 
-
-* Box plot to see the distribution around the mean for each big four variable
+*Box plot to see the distribution around the mean for each Big Four Move variable
 levelsof endline, local(endline)
 local z: value label endline
 foreach l of local endline {
 local x: label `z' `l'
-graph box q_13 q_14 q_15 q_16 if endline == `l' , bargap(30) blabel(bar, size(small) format(%3.2f)) legend(label(1 "Motivation") label(2 "Lesson Plan") label(3 "Checking performance") label(4 "Responding")) yscale(r(1 9)) ylabel(1(1)9, grid gmin gmax) ytitle("Scale of Score 1-9", size(vsmall)) title("`x'", size(medsmall)) asyvars saving("$output/bigfour/boxplot_`x'", replace)
+graph box q_13 q_14 q_15 q_16 if endline == `l' , bargap(30) blabel(bar, size(small) format(%3.2f)) legend(label(1 "Motivation") label(2 "Lesson Plan") label(3 "Checking" "performance") label(4 "Responding")) yscale(r(1 9) titlegap(*10)) ylabel(1(1)9, grid gmin gmax) ytitle("Scale of Score 1-9", size(small)) title("`x'", size(medsmall)) asyvars saving("$tempgraphs/boxplot_`x'", replace)
 }
 
-gr combine "$output/bigfour/bigfour_mean_b" "$output/bigfour/bigfour_mean_e", title("Mean Big Four teacher scores by survey round", size(medsmall)) 
-graph export "$output/bigfour_mean.png", replace
+**combine section graphs and export
+gr combine "$tempgraphs/boxplot_Baseline.gph" "$tempgraphs/boxplot_Endline.gph", title("Mean Big Four teacher scores by survey round", size(medsmall)) 
+graph export "$output/bigfour_mean_baseline_endline.png", replace
 
-**
-
-* Bar graph showing the mean scores of each big four variable by gender
+*Bar graph showing the mean scores of each big four variable by gender
 levelsof endline, local(endline)
 local z: value label endline
 foreach l of local endline {
 local x: label `z' `l'
-graph bar (mean) q_13 q_14 q_15 q_16 if endline == `l' , over(female, relabel(1 "Male" 2 "Female")) bargap(30) blabel(bar, size(small) format(%3.2f)) legend(label(1 "Motivation") label(2 "Lesson Plan") label(3 "Checking" "performance") label(4 "Responding") size(vsmall)) yscale(r(1 9) titlegap(*10)) ylabel(1(1)9, grid gmin gmax) ytitle("Mean Teacher Score (1-9)", size(small)) title("`x'", size(medsmall)) saving("$output/bigfour/bigfour_gender_`x'", replace)
+graph bar (mean) q_13 q_14 q_15 q_16 if endline == `l' , over(female, relabel(1 "Male" 2 "Female")) bargap(30) blabel(bar, size(small) format(%3.2f)) legend(label(1 "Motivation") label(2 "Lesson Plan") label(3 "Checking" "performance") label(4 "Responding") size(vsmall)) yscale(r(1 9) titlegap(*10)) ylabel(1(1)9, grid gmin gmax) ytitle("Mean Teacher Score (1-9)", size(small)) title("`x'", size(medsmall)) saving("$tempgraphs/bigfour_gender_`x'", replace)
 }
 
-gr combine "$output/bigfour/bigfour_gender_Baseline" "$output/bigfour/bigfour_gender_Endline", title("Mean Scores of Big Four Moves by Gender", size(medsmall))
-graph export "$output/bigfour_gender.png", replace
+**combine section graphs and export
+gr combine "$tempgraphs/bigfour_gender_Baseline" "$tempgraphs/bigfour_gender_Endline", title("Mean Scores of Big Four Moves by Gender", size(medsmall))
+graph export "$output/bigfour_mean_gender.png", replace
 
-**
-
-* Box plot showing the distribution of each big four variable by grade
+*Box plot showing the distribution of each big four variable by grade
 preserve
 	drop if grade == 0 // drop the nursery grade and focus on grades 1-5, there is only one observation in the nursery grade
 	local bfour q_13 q_14 q_15 q_16 // q_13-q_16 practices are the big four moves
 	foreach i in `bfour' {
 		local z: variable label `i'
 		if "`i'" == "q_13" | "`i'" == "q_14" {
-			graph box `i', over(grade) bargap(30) blabel(bar, size(small) format(%3.2f)) ytitle("Mean Teacher Score", size(small)) yscale(titlegap(*10)) title("`z'", size(small)) asyvars yscale(r(1 9)) ylabel(1(1)9, grid gmin gmax) saving("$output/bigfour/`i'", replace) legend(off)
+			graph box `i', over(grade) bargap(30) blabel(bar, size(small) format(%3.2f)) ytitle("Mean Teacher Score", size(small)) yscale(titlegap(*10)) title("`z'", size(small)) asyvars yscale(r(1 9)) ylabel(1(1)9, grid gmin gmax) saving("$tempgraphs/`i'", replace) legend(off)
 		}
 		
 		if "`i'" == "q_15" | "`i'" == "q_16" {
-			graph box `i', over(grade) bargap(30) blabel(bar, size(small) format(%3.2f)) ytitle("Mean Teacher Score", size(small)) yscale(titlegap(*10)) title("`z'", size(small)) asyvars yscale(r(1 9)) ylabel(1(1)9, grid gmin gmax) saving("$output/bigfour/`i'", replace)
+			graph box `i', over(grade) bargap(30) blabel(bar, size(small) format(%3.2f)) ytitle("Mean Teacher Score", size(small)) yscale(titlegap(*10)) title("`z'", size(small)) asyvars yscale(r(1 9)) ylabel(1(1)9, grid gmin gmax) saving("$tempgraphs/`i'", replace)
 		}
 	}
 restore
 
-gr combine "$output/bigfour/q_13" "$output/bigfour/q_14" "$output/bigfour/q_15" "$output/bigfour/q_16", title("Mean Scores of Big Four Moves by Grade", size(medsmall))
+**combine section graphs and export
+gr combine "$tempgraphs/q_13" "$tempgraphs/q_14" "$tempgraphs/q_15" "$tempgraphs/q_16", title("Mean Scores of Big Four Moves by Grade", size(medsmall))
 graph export "$output/bigfour_grade.png", replace
 
-** Big Four Moves by Treatment level - Difference-in-difference graph
+*Big Four Moves by Treatment level - Difference-in-difference plot
 local bfour q_13 q_14 q_15 q_16 // q_13-q_16 practices are the big four moves
 foreach i in `bfour' {
 	local z: variable label `i'_z
 	graph bar (mean) `i'_z, over(treatment) bargap(30) over(endline, relabel(1 "Baseline" 2 "Endline")) ///
 	bar(1, color(maroon)) bar(2, color(navy)) legend(size(small) rows(1)) ///
 	blabel(bar, size(vsmall) format(%3.2f)) ytitle("Average Teacher Rating", size(small)) yscale(titlegap(*10)) title("`z'", size(medsmall)) asyvars 
-	graph export "$output/bigfour/`i'.png", replace 
+	graph export "$output/`i'.png", replace 
 }
 
-	********************************************************************************************************************
-
+	*****************************************************************************X**********************************************************************************

@@ -1,8 +1,8 @@
 /**********************************************************************************
+Georgetown Capstone Project
  Client: 			NewGlobe
  Project: 			Analysis of the Existing Data
- Purpose: 			This .do cleans sets global file paths and runs all .do files to produce visualizations and regression results
-					For usage of client presentation on November 10th, 2022.
+ Purpose: 			This .do file calls the other do-files.
  Author: 			Payal Soneja, Hailey Wellenstein, Cuong Pham Vu
  Date:  			10/25/2022
  Updated: 			11/06/2022
@@ -75,34 +75,22 @@ if $user_number == 6 {
 
 
 *Project folder globals
-gl raw 		"$user/raw_data"
-gl clean 	"$user/clean_data"
-gl dofiles 	"$user/$main/do_files"	
-gl output 	"$user/output"
-gl regressions "$output/regressions"
-gl tempgraphs "$output/tempgraphs"
-cd 			"$user/$main"
+gl raw 			"$user/raw_data"
+gl clean 		"$user/clean_data"
+gl dofiles 		"$user/$main/do_files"	
+gl output 		"$user/output"
+gl regressions 	"$output/regressions"
+gl tempgraphs 	"$output/tempgraphs"
+cd 				"$user/$main"
 
 **************************************************
-******************* CLEANING  ********************
+**********CLEANING AND VISUALIZATIONS  ***********
 **************************************************
 
-do "$dofiles/0. Cleaning for regressions.do"
-	// INPUTS: $raw/Anonymized file - TEACH data_Updated.dta
-	// OUTPUTS: $clean/teach_clean.dta
-
-**************************************************
-************ DESCRIPTIVE ANALYSIS  ***************
-**************************************************
-
-do "$dofiles/1. NewGlobe_Descriptive_Statistics.do"
+do "$dofiles/1. NewGlobe_Visualizations.do"
 	// INPUTS: $clean/teach_newglobe.dta
-	// OUTPUTS: Produces descriptive analysis graphs for overall TEACH scores, individual TEACH sections, and individual TEACH behaviors in output folder
-	
-do "$dofiles/1. BigFour_Visualizations.do"
-	// INPUTS: $clean/teach_clean.dta
-	// OUTPUTS: Produces descriptive analysis graphs for data on Big Four moves in output folder
-	
+	// OUTPUTS: Produces descriptive analysis and visulaizations for overall TEACH scores, individual TEACH sections, individual TEACH behaviors, and all the Big Four moves in output folder
+
 **************************************************
 ************ DIFFERENCE-IN-DIFFERENCE ************
 **************************************************
