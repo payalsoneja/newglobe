@@ -43,17 +43,17 @@ cd 				"$user/$main"
 				*************************************************************************************
 				*****************************  Do File Outline  *************************************
 				*************************************************************************************
-				* 1. Label variables (if any) by section											*
+				* 1. Label variables (if any) by section							*
 				* 2. Generate means of 10 sections, 3 core areas and the overall TEACH				*
-				* 3. Recode the scores into low, medium and high									*
-				* 4. Reshapes data for visualizations
-				* 5. Plot the distributions of 10 sections, 3 core areas and the overall TEACH
-				* 6. Generate diff-in-diff plots for 10 sections, 3 core areas and overall TEACH	*
-				* 7. Combine graphs (wherever necessary) and explort all graphs						*
-				* 8. Normalizes big four moves scores within districts    							*
-				* 9. Plots the distribution of two big four moves by district.						*
+				* 3. Recode the scores into low, medium and high						*
+				* 4. Reshapes data for visualizations								*																
+				* 5. Plot the distributions of 10 sections, 3 core areas and the overall TEACH			*
+				* 6. Generate diff-in-diff plots for 10 sections, 3 core areas and overall TEACH		*
+				* 7. Combine graphs (wherever necessary) and explort all graphs					*
+				* 8. Normalizes big four moves scores within districts    					*
+				* 9. Plots the distribution of two big four moves by district.					*
 				* 10. Plots the mean scores of each big four variable by gender and grades			*
-				* 11. Plots the mean scores of each big four variable by treatment (Diff-in-Diff)	*
+				* 11. Plots the mean scores of each big four variable by treatment (Diff-in-Diff)		*
 				
 ********************************************************************************
 				
