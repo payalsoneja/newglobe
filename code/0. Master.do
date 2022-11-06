@@ -57,7 +57,7 @@ if $user_number == 2 {
 }
 
 if $user_number == 3 { 
-  global user = "C:/Users/cuong/Documents/Capstone"
+  global user = "G:\Shared drives\New Globe - Capstone\Analysis\NewGlobe Analysis"
 }
 
 if $user_number == 4 {

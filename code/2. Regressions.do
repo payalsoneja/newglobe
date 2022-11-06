@@ -22,12 +22,11 @@ Georgetown Capstone Project
 
 clear all
 
-use "$clean/teach_clean.dta"
+use "$clean/teach_clean.dta", clear
 
 // Setting up regression tables
 
-gen treatend = treatment*endline // generate interaction variable 
-label var treatend "DID estimate"
+label var treatXend "DID estimate"
 
 local table big_four_moves time_on_learning supportive_learning_environment positive_behavioral_expectation lesson_facilitation checks_for_understanding feedback critical_thinking autonomy perseverance social_collaborative_skills
 // Putting each section as table into a local to loop over
@@ -36,19 +35,19 @@ local table big_four_moves time_on_learning supportive_learning_environment posi
 foreach table in `table' {
 	
 	if "`table'" == "big_four_moves" {
-		local outcomevars q_13_motivation_pupils_z q_14_accurate_lessonplan_z q_15_checking_pupil_perf_z q_16_respond_pupil_perf_z
+		local outcomevars q_13_z q_14_z q_15_z q_16_z
 		local title "Table 0: Big Four moves"
 		local controls
 	}
 	
 	if "`table'" == "time_on_learning" {
-		local outcomevars q_1_1_provide_activity q_1_2_pupil_ontask 				section1_average section1_round_average 
+		local outcomevars q_1_1_provide_learn_activity q_1_2_pupil_ontask 				section1_average section1_round_average 
 		local title "Table 1: Time on learning"
 		local controls
 	}
 	
 	if "`table'" == "supportive_learning_environment" {
-		local outcomevars q_2_1_treats_respect q_2_2_pos_language  q_2_3_teacher_resp_needs q_2_4_teacher_no_gbias section2_average section2_round_average
+		local outcomevars q_2_1_treats_respect q_2_2_positive_language  q_2_3_teacher_responds_needs q_2_4_teacher_not_genderbias section2_average section2_round_average
 		local title "Table 2: Supportive learning environment"
 		local controls
 	}
@@ -101,11 +100,13 @@ foreach table in `table' {
 		local controls
 	}
 	
-	local panelA treatment endline treatend 
+	local panelA treatment endline treatXend 
 	// local for regression specification without controls
 	
-	local panelB female subject_type number_pupils_attendance grade treatment endline treatend
+	local panelB female subject_type number_pupils_attendance grade treatment endline treatXend
 	// local for regression specification with additional teacher-level controls
+	
+	local notes "OLS estimates with standard errors clustered at the school level"
 	
 	// Panel A
 	
@@ -144,7 +145,7 @@ foreach table in `table' {
 	
 	}
 	
-	esttab using "$regressions/`table'.csv", append b(2) se(2) label star(* 0.10 ** 0.05 *** 0.01) nomtitles nonumbers se ar2 drop(_cons) refcat(female "Panel B", nolabel) scalars(control controls) stats(N r2_a control controls, labels ("Obs" "Adjusted R-Squared" "Mean Dep. Var in control group" "Additional controls added") fmt(%9.0fc %9.2fc)) nonotes
+	esttab using "$regressions/`table'.csv", append b(2) se(2) label star(* 0.10 ** 0.05 *** 0.01) nomtitles nonumbers se ar2 drop(_cons) refcat(female "Panel B", nolabel) scalars(control controls) stats(N r2_a control controls, labels ("Obs" "Adjusted R-Squared" "Mean Dep. Var in control group" "Additional controls added") fmt(%9.0fc %9.2fc)) addnote(`notes')
 	
 }
 	

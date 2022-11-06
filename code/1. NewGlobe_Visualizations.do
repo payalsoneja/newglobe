@@ -13,31 +13,6 @@ Georgetown Capstone Project
 clear all
 set more off
 
-/*install color schemes
-ssc install schemepack, replace
-set scheme tab2   // change to newglobe's theme
-*/
-
-**************************************************
-****** Global and locals you need to modify ******
-**************************************************
-
-if c(os)=="MacOSX" {
-	gl user "C:\Users\payal\Documents\Georgetown_MIDP\Academics\Capstone\2022-23\Data" //change user
-}
-else if c(os)=="Windows" { 
-	gl user "C:\Users\payal\Documents\Georgetown_MIDP\Academics\Capstone\2022-23\Data"  //change user
-}
-
-*Project folder globals
-gl raw 			"$user/raw_data"
-gl clean 		"$user/clean_data"
-gl dofiles 		"$user/$main/do_files"	
-gl output 		"$user/output"	
-gl regressions 	"$output/regressions"
-gl tempgraphs 	"$output/tempgraphs"	
-cd 				"$user/$main"
-
 ********************************************************************************
 
 				*************************************************************************************
@@ -372,4 +347,6 @@ foreach i in `bfour' {
 	graph export "$output/`i'.png", replace 
 }
 
+
+save "$clean/teach_clean.dta", replace
 	*****************************************************************************X**********************************************************************************
