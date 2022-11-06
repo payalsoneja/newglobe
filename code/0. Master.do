@@ -78,9 +78,9 @@ gl raw 			"$user/raw_data"
 gl clean 		"$user/clean_data"
 gl dofiles 		"$user/$main/do_files"	
 gl output 		"$user/output"
-gl regressions 	"$output/regressions"
-gl tempgraphs 	"$output/tempgraphs"
-cd 				"$user/$main"
+gl regressions 		"$output/regressions"
+gl tempgraphs 		"$output/tempgraphs"
+cd 			"$user/$main"
 
 **************************************************
 **********CLEANING AND VISUALIZATIONS  ***********
