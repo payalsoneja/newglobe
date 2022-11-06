@@ -27,7 +27,6 @@ ssc install schemepack, replace
 set scheme tab2
 
 ssc install estout, replace
-ssc install asdoc, replace
 ssc install xml_tab, replace
 
 **************************************************
