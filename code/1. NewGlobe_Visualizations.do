@@ -1,11 +1,12 @@
 /**********************************************************************************
+Georgetown Capstone Project
  Client: 			NewGlobe
  Project: 			Analysis of the Existing Data
  Purpose: 			This .do cleans the exisiting data produced by NewGlobe's adapted TEACH teacher observation tool and plots the descriptive statistics.
 					For usage of client presentation on November 10th, 2022.
  Author: 			Payal Soneja, Hailey Wellenstein, Cuong Pham Vu
  Date:  			10/25/2022
- Updated: 			11/05/2022
+ Updated: 			11/06/2022
 **********************************************************************************/
 
 * initialize Stata
@@ -14,7 +15,7 @@ set more off
 
 *install color schemes
 ssc install schemepack, replace
-set scheme tab2
+set scheme tab2   // change to newglobe's theme
 
 **************************************************
 ****** Global and locals you need to modify ******
@@ -50,6 +51,10 @@ cd 			"$user/$main"
 ********************************************************************************
 				
 use "$clean/teach_newglobe.dta", clear
+
+*******************************
+*Cleaning for visualizations
+*******************************
 
 *labeling all sections 
 label var section1_round_average "Time on Learning"
@@ -244,6 +249,106 @@ graph export "$output/diff_in_diff_instruction.png", replace
 graph combine "$output/section8_average.gph" "$output/section9_average.gph" "$output/section10_average.gph", title("Difference-in-Differences for practices under Socioemotional Skills", size(medium)) 
 graph export "$output/diff_in_diff_socioemotional.png", replace
 	
+*****************************************************************
+*Big Four Moves
+*****************************************************************
+
+*renaming "big four skills" variables
+ren q_13_motivation_pupils q_13
+ren q_14_accurate_lessonplan q_14
+ren q_15_checking_pupil_performance q_15
+ren q_16_respond_pupil_performances q_16
+
+label var q_15 "How well is the teacher checking on pupils"
+
+**Normalize big four moves scores within districts
+local bfour q_13 q_14 q_15 q_16 // q_13-q_16 practices are the big four moves
+
+foreach j in `bfour'{
+	gen `j'_z = 0
+}
+
+levelsof lgea_id  // lega_id is district
+local district `r(levels)'
+
+foreach i in `district' {
+	foreach j in `bfour' {
+		sum `j' if lgea_id == `i'
+		replace `j'_z = (`j' - `r(mean)')/`r(sd)' if lgea_id == `i'
+	}
+}
+
+*label the "big four moves" variables
+label var q_13_z "Motivating students z-score"
+label var q_14_z "Using the lesson plan z-score"
+label var q_15_z "Checking performance z-score"
+label var q_16_z "Responding z-score"
+
+*plot the distribution of two big four moves. 
+global bfour q_13 q_14  // add big four moves variables here
+levelsof lgea_id
+local district `r(levels)'
+	foreach i in `district' {
+	foreach var in $bfour {
+	kdensity `var' if lgea_id == `i', saving($output/bigfour/`var'_`i', replace) xscale(off) title("District `i'", size(small))
+	}
+	}
+
+gr combine "$output/bigfour/q_14_109" "$output/bigfour/q_14_190" "$output/bigfour/q_14_271" "$output/bigfour/q_14_352" "$output/bigfour/q_433" "$output/bigfour/q_14_514"  "$output/bigfour/q_14_595" "$output/bigfour/q_14_676", title("Distribution of Lesson Plan scores by district", size(medsmall))
+graph export "$output/bigfour/lesson_plan_distribution_district.png", replace
+
+gr combine "$output/bigfour/q_13_109" "$output/bigfour/q_13_motivation_pupils_190" "$output/bigfour/q_13_motivation_pupils_271" "$output/bigfour/q_13_motivation_pupils_352" "$output/bigfour/q_13_motivation_pupils_433" "$output/bigfour/q_13_motivation_pupils_514"  "$output/bigfour/q_13_motivation_pupils_595" "$output/bigfour/q_13_motivation_pupils_676", title("Distribution of Motivation scores by district", size(medsmall)) 
+graph export "$output/motivation_distribution_district.png", replace
+
+levelsof endline, local(endline)
+local z: value label endline
+foreach l of local endline {
+local x: label `z' `l'
+graph box q_13 q_14 q_15 q_16 if endline == `l' , bargap(30) blabel(bar, size(small) format(%3.2f)) legend(label(1 "Motivation") label(2 "Lesson Plan") label(3 "Checking performance") label(4 "Responding")) yscale(r(1 9)) ylabel(1(1)9, grid gmin gmax) ytitle("Scale of Score 1-9", size(vsmall)) title("`x'", size(medsmall)) asyvars saving("$output/bigfour/boxplot_`x'", replace)
+}
+
+gr combine "$output/bigfour/bigfour_mean_b" "$output/bigfour/bigfour_mean_e", title("Mean Big Four teacher scores by survey round", size(medsmall)) 
+graph export "$output/bigfour_mean.png", replace
+
+**
+levelsof endline, local(endline)
+local z: value label endline
+foreach l of local endline {
+local x: label `z' `l'
+graph bar (mean) q_13 q_14 q_15 q_16 if endline == `l' , over(female, relabel(1 "Male" 2 "Female")) bargap(30) blabel(bar, size(small) format(%3.2f)) legend(label(1 "Motivation") label(2 "Lesson Plan") label(3 "Checking" "performance") label(4 "Responding") size(vsmall)) yscale(r(1 9) titlegap(*10)) ylabel(1(1)9, grid gmin gmax) ytitle("Mean Teacher Score (1-9)", size(small)) title("`x'", size(medsmall)) saving("$output/bigfour/bigfour_gender_`x'", replace)
+}
+
+gr combine "$output/bigfour/bigfour_gender_Baseline" "$output/bigfour/bigfour_gender_Endline", title("Mean Scores of Big Four Moves by Gender", size(medsmall))
+graph export "$output/bigfour_gender.png", replace
+
+**
+preserve
+	drop if grade == 0 // drop the nursery grade and focus on grades 1-5
+	local bfour q_13 q_14 q_15 q_16 // q_13-q_16 practices are the big four moves
+	foreach i in `bfour' {
+		local z: variable label `i'
+		if "`i'" == "q_13" | "`i'" == "q_14" {
+			graph box `i', over(grade) bargap(30) blabel(bar, size(small) format(%3.2f)) ytitle("Mean Teacher Score", size(small)) yscale(titlegap(*10)) title("`z'", size(small)) asyvars yscale(r(1 9)) ylabel(1(1)9, grid gmin gmax) saving("$output/bigfour/`i'", replace) legend(off)
+		}
+		
+		if "`i'" == "q_15" | "`i'" == "q_16" {
+			graph box `i', over(grade) bargap(30) blabel(bar, size(small) format(%3.2f)) ytitle("Mean Teacher Score", size(small)) yscale(titlegap(*10)) title("`z'", size(small)) asyvars yscale(r(1 9)) ylabel(1(1)9, grid gmin gmax) saving("$output/bigfour/`i'", replace)
+		}
+	}
+restore
+
+gr combine "$output/bigfour/q_13" "$output/bigfour/q_14" "$output/bigfour/q_15" "$output/bigfour/q_16", title("Mean Scores of Big Four Moves by Grade", size(medsmall))
+graph export "$output/bigfour_grade.png", replace
+
+** Big Four Moves by Treatment level
+local bfour q_13 q_14 q_15 q_16 // q_13-q_16 practices are the big four moves
+foreach i in `bfour' {
+	local z: variable label `i'_z
+	graph bar (mean) `i'_z, over(treatment) bargap(30) over(endline, relabel(1 "Baseline" 2 "Endline")) ///
+	bar(1, color(maroon)) bar(2, color(navy)) legend(size(small) rows(1)) ///
+	blabel(bar, size(vsmall) format(%3.2f)) ytitle("Average Teacher Rating", size(small)) yscale(titlegap(*10)) title("`z'", size(medsmall)) asyvars 
+	graph export "$output/bigfour/`i'.png", replace 
+}
 
 	********************************************************************************************************************
 
