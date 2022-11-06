@@ -87,21 +87,16 @@ cd 			"$user/$main"
 ******************* CLEANING  ********************
 **************************************************
 
-do "$dofiles/0. Cleaning for regressions.do"
-	// INPUTS: $raw/Anonymized file - TEACH data_Updated.dta
-	// OUTPUTS: $clean/teach_clean.dta
+
 
 **************************************************
 ************ DESCRIPTIVE ANALYSIS  ***************
 **************************************************
 
-do "$dofiles/1. NewGlobe_Descriptive_Statistics.do"
+do "$dofiles/1. NewGlobe_Visualizations.do"
 	// INPUTS: $clean/teach_newglobe.dta
-	// OUTPUTS: Produces descriptive analysis graphs for overall TEACH scores, individual TEACH sections, and individual TEACH behaviors in output folder
-	
-do "$dofiles/1. BigFour_Visualizations.do"
-	// INPUTS: $clean/teach_clean.dta
-	// OUTPUTS: Produces descriptive analysis graphs for data on Big Four moves in output folder
+	// OUTPUTS: Produces descriptive analysis graphs for overall TEACH scores, individual TEACH sections, individual TEACH behaviors, and all Big Four moves in output folder
+
 	
 **************************************************
 ************ DIFFERENCE-IN-DIFFERENCE ************
